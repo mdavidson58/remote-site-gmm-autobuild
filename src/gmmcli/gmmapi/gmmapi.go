@@ -402,19 +402,11 @@ ioutil.WriteFile(filename, responseData, 0644)
 // Function to Upload a Gateway Profile to GMM
 // Need to supply GMM API Key, GMM Org ID, Profile as JSON File
 // The Gateway Profile JSON file needs to be in the same directory as this script
-func Gmm_upload_gwy_profile(gmm_api_key string, org_id int, profile_filename string) {
+func Gmm_upload_gwy_profile(gmm_api_key string, org_id int, gw_profile string) {
 
-jsonFile, err := os.Open(profile_filename)
+byteValue := []byte(gw_profile)
 
-if err != nil {
-fmt.Println(err)
-os.Exit(1)
-}
-
-fmt.Println("")
-fmt.Println("Successfully opened " + profile_filename)
-
-byteValue, _ := ioutil.ReadAll(jsonFile)
+fmt.Println("byteValue = " + string(byteValue))
 
 url := "https://us.ciscokinetic.io/api/v2/organizations/" + strconv.Itoa(org_id) + "/gateway_profiles"
 request, _ := http.NewRequest("POST", url, bytes.NewBuffer(byteValue))
@@ -711,5 +703,195 @@ os.Exit(1)
 
 responseData, _ := ioutil.ReadAll(r.Body)
 fmt.Println("Associated Flexible Template : " + string(responseData))
+}
+
+// Function to retrieve Gateway tags for an oganization.  Returns tag_id
+func Retrieve_gmm_org_tag_id(gmm_api_key string, org_id int, varnum int) (tag_id int) {
+
+type org_tag struct {
+ID          int     	`json:"id"`
+Default_Name 	string	`json:"default_name"`
+Custom_Name    	string	`json:"custom_name"`
+Org_ID		int			`json:"organization_id"`
+created_at  string 		`json:"created_at"`
+updated_at  string 		`json:"updated_at"`
+Enabled     bool		`json:"enabled"`
+Field_Type  string		`json:"enabled"`
+Allowed_Values   []string	`json:"allowed_values"`
+data_route_key  string		`json:"data_route_key"`
+guid        string			`json:"guid"`
+
+}
+
+if varnum > 5 {
+	fmt.Println("Error: only 6 total variables available")
+	return -1
+}
+
+type Org_Tag struct {
+	Collection []org_tag
+}
+
+jsonValue, _ := json.Marshal("")
+
+url := "https://us.ciscokinetic.io/api/v2/organizations/" + strconv.Itoa(org_id) + "/tags?offset=" + strconv.Itoa(varnum) + "&limit=" + strconv.Itoa(1)
+
+request, _ := http.NewRequest("GET", url, bytes.NewBuffer(jsonValue))
+token := "Token " + gmm_api_key
+request.Header.Set("Authorization", token)
+client := &http.Client{}
+r, err := client.Do(request)
+
+if err != nil {
+fmt.Printf("Retrieve GMM Tags error %s\n", err)
+os.Exit(1)
+}
+
+responseData, _ := ioutil.ReadAll(r.Body)
+responseObject := make([]org_tag,10)
+e := json.Unmarshal(responseData, &responseObject)
+if e != nil {
+fmt.Println("Unmarshall Error: ", e)
+  os.Exit(1)
+}
+
+return responseObject[varnum].ID
+
+}
+
+// Create a new org in GMM
+func Create_gmm_org(gmm_api_key string, orgname string, parentOrg int) (orgid int) {
+
+type org_info struct {
+ID          int     	`json:"id"`
+Owner_ID 	int			`json:"owner_id"`
+created_at  string 		`json:"created_at"`
+updated_at  string 		`json:"updated_at"`
+field_director_id	int	`json:"field_director_id"`
+field_director_object_ref 	[]string `json:"field_director_object_ref"`
+fog_director_id	int		`json:"fog_director_id"`
+ancestry	string		`json:"ancestry"`
+fnd_template_file	string	`json:"fnd_template_file"`
+tag_id		int			`json:"tag_id_for_data_routing"`
+fnd_template_id	int		`json:"fnd_template_id"`
+subscriber_uid	string	`json:"subscriber_uid"`
+guid		string		`json:"guid"`
+betas		[]string	`json:"betas"`
+dcm_server	string		`json:"dcm_server"`
+data_url	string		`json:"data_exchange_url"`
+gw_show		string		`json:"gateway_show_commands"`
+gw_debug	string		`json:"gateway_debug_commands"`
+features    string		`json:"features"`
+
+}
+
+fmt.Println("Create GMM Organization with name of " + orgname + " and parent of " + strconv.Itoa(parentOrg))
+
+// A Response struct to map the entire response
+type Response struct {
+Access_token string		`json: "access_token"`
+Expires_in int			`json: "expires_in"`
+Token_type string		`json: "token_type"`
+}
+
+jsonData := `{ "organization": { "name": "` + orgname + `", "parent_id": ` + strconv.Itoa(parentOrg) + `, "user_account": "false" }}`
+jsonValue := []byte(jsonData)
+
+fmt.Println("payload = " + string(jsonValue))
+request, _ := http.NewRequest("POST", "https://us.ciscokinetic.io/api/v2/organizations/", bytes.NewBuffer(jsonValue))
+token := "Token " + gmm_api_key
+request.Header.Set("Authorization", token)
+request.Header.Set("Content-Type", "application/json")
+client := &http.Client{}
+r, err := client.Do(request)
+
+if err != nil {
+fmt.Printf("Org creation failed with the error %s\n", err)
+os.Exit(1)
+}
+
+responseData, _ := ioutil.ReadAll(r.Body)
+fmt.Println("responseData = " + string(responseData))
+var responseObject org_info
+e := json.Unmarshal(responseData, &responseObject)
+if e != nil {
+fmt.Println("Unmarshall Error: ", e)
+os.Exit(1)
+}
+
+return responseObject.ID
+
+}
+
+// Function to update  tags for an oganization.  
+func Update_gmm_org_tags(gmm_api_key string, tag_id int, tag string)  {
+
+
+
+data := []byte(tag)
+
+url := "https://us.ciscokinetic.io/api/v2/tags/" + strconv.Itoa(tag_id)
+request, _ := http.NewRequest("PUT", url, bytes.NewBuffer(data))
+token := "Token " + gmm_api_key
+request.Header.Set("Authorization", token)
+request.Header.Set("Content-Type", "application/json")
+client := &http.Client{}
+r, err := client.Do(request)
+
+if err != nil {
+fmt.Printf("Update GMM Tags error %s\n", err)
+os.Exit(1)
+}
+
+responseData, _ := ioutil.ReadAll(r.Body)
+fmt.Printf("Tag Update Response Data = " + string(responseData))
+}
+
+func Create_claim_policy(gmm_api_key string, org_id int, claimpolicy string) (cp_id int) {
+
+type claim_policy struct {
+ID			int			`json:"id"`
+guid		string		`json:"guid"`
+name  		string 		`json:"name"`
+activated	bool 		`json:"activated"`
+tag_id		int			`json:"tag_id`
+policy_templates 	[]string `json:"policy_templates"`
+
+}
+
+// A Response struct to map the entire response
+type Response struct {
+Access_token string		`json: "access_token"`
+Expires_in int			`json: "expires_in"`
+Token_type string		`json: "token_type"`
+}
+
+jsonValue := []byte(claimpolicy)
+uri := "https://us.ciscokinetic.io/api/v2/organizations/"+ strconv.Itoa(org_id) + "/gateway_claim_policies"
+fmt.Println("payload = " + string(jsonValue))
+request, _ := http.NewRequest("POST", uri , bytes.NewBuffer(jsonValue))
+token := "Token " + gmm_api_key
+request.Header.Set("Authorization", token)
+request.Header.Set("Content-Type", "application/json")
+client := &http.Client{}
+r, err := client.Do(request)
+
+if err != nil {
+fmt.Printf("Org creation failed with the error %s\n", err)
+os.Exit(1)
+}
+
+responseData, _ := ioutil.ReadAll(r.Body)
+fmt.Println("responseData = " + string(responseData))
+var responseObject claim_policy
+e := json.Unmarshal(responseData, &responseObject)
+if e != nil {
+fmt.Println("Unmarshall Error: ", e)
+os.Exit(1)
+}
+
+fmt.Println("Created Claim Policy " + responseObject.name + " in org " + strconv.Itoa(org_id))
+return responseObject.ID
+
 }
 
