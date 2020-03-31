@@ -41,7 +41,7 @@ gmm_api_key := gmmapi.Retrieve_gmm_api_key(user_name, user_pass)
 //fmt.Println("tag 1 = " + strconv.Itoa(gmmapi.Retrieve_gmm_org_tag_id(gmm_api_key, my_org_id, 0)))
 
 // let's build orgs
-for x :=2; x< 4; x++ {
+for x :=0; x< 2; x++ {
 	
 Org :="TeleMedicine" + strconv.Itoa(x)
 
@@ -64,8 +64,6 @@ dual_radio_flex_template := `
         "VPN_2_password"
       ],
       "flexible_template_type": "router"
-
-    }
 }`
 
 
