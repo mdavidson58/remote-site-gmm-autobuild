@@ -41,7 +41,7 @@ gmm_api_key := gmmapi.Retrieve_gmm_api_key(user_name, user_pass)
 //fmt.Println("tag 1 = " + strconv.Itoa(gmmapi.Retrieve_gmm_org_tag_id(gmm_api_key, my_org_id, 0)))
 
 // let's build orgs
-for x :=0; x< 2; x++ {
+for x :=2; x< 4; x++ {
 	
 Org :="TeleMedicine" + strconv.Itoa(x)
 
@@ -130,7 +130,7 @@ dual_radio_profile := `
       "backup_customer_vpn_pre_shared_key": null,
       "flexible_template_id": XX,
       "flexible_template_enable": true,
-      "flexible_template_advanced": false,
+      "flexible_template_advanced": true,
       "flexible_template_variables": [
         {
           "name": "WLC_IP_HexFormat",
@@ -226,7 +226,7 @@ single_radio_profile :=`
       "backup_customer_vpn_pre_shared_key": "",
       "flexible_template_id": XX,
       "flexible_template_enable": true,
-      "flexible_template_advanced": false,
+      "flexible_template_advanced": true,
       "flexible_template_variables": [
         {
           "name": "WLC_IP_HexFormat",
