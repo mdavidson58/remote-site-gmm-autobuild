@@ -428,19 +428,21 @@ fmt.Println("Gateway Profile Uploaded into GMM: " + string(responseData))
 // Function to Upload a Flexible Template to GMM
 // Need to supply GMM API Key, GMM Org ID, Flexible Template as JSON File
 // The Flex Template JSON file needs to be in the same directory as this script
-func Gmm_upload_flex_template(gmm_api_key string, org_id int, flex_template_filename string) {
+func Gmm_upload_flex_template(gmm_api_key string, org_id int, flex_template string) {
 
-jsonFile, err := os.Open(flex_template_filename)
+//jsonFile, err := os.Open(flex_template_filename)
 
-if err != nil {
-fmt.Println(err)
-os.Exit(1)
-}
+//if err != nil {
+//fmt.Println(err)
+//os.Exit(1)
+//}
 
-fmt.Println("")
-fmt.Println("Successfully opened " + flex_template_filename)
+//fmt.Println("")
+//fmt.Println("Successfully opened " + flex_template_filename)
 
-byteValue, _ := ioutil.ReadAll(jsonFile)
+//byteValue, _ := ioutil.ReadAll(jsonFile)
+byteValue := []byte(flex_template)
+
 
 url := "https://us.ciscokinetic.io/api/v2/organizations/" + strconv.Itoa(org_id) + "/flexible_templates"
 request, _ := http.NewRequest("POST", url, bytes.NewBuffer(byteValue))
