@@ -287,7 +287,7 @@ new_tag_id := gmmapi.Retrieve_gmm_org_tag_id(gmm_api_key, new_org_id, 0)
 tag_string := `  
 {
     "default_name": "account 1",
-    "custom_name": "Tag1",
+    "custom_name": "Gateway Type",
     "enabled": true,
     "field_type": "Dropdown",
     "allowed_values": [
