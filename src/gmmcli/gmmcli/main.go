@@ -41,7 +41,7 @@ gmm_api_key := gmmapi.Retrieve_gmm_api_key(user_name, user_pass)
 //fmt.Println("tag 1 = " + strconv.Itoa(gmmapi.Retrieve_gmm_org_tag_id(gmm_api_key, my_org_id, 0)))
 
 // let's build orgs
-for x :=0; x< 100; x++ {
+for x :=0; x< 2; x++ {
 	
 Org :="RemoteSite" + strconv.Itoa(x)
 
@@ -61,7 +61,7 @@ flex_template_807 := `
         "nat_inside_address",
         "device_ip_1"
       ],
-      "flexible_template_type": "router",
+      "flexible_template_type": "router"
 
 }
 `
@@ -77,7 +77,7 @@ flex_template_1101 := `
         "nat_inside_address",
         "device_ip_1"
       ],
-      "flexible_template_type": "router",
+      "flexible_template_type": "router"
 
 }
 `
