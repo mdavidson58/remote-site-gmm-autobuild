@@ -86,8 +86,8 @@ gmmapi.Gmm_upload_flex_template(gmm_api_key,new_org_id,flex_template_807)
 gmmapi.Gmm_upload_flex_template(gmm_api_key,new_org_id,flex_template_1101)
 
 //Get the template id
-flex_id_807 := gmmapi.Retrieve_gmm_flex_template_id(gmm_api_key, new_org_id, "829 Telemedicine - Dual LTE Adv Template") 
-flex_id_1101 := gmmapi.Retrieve_gmm_flex_template_id(gmm_api_key, new_org_id, "829 Telemedicine - Single LTE Adv Template")
+flex_id_807 := gmmapi.Retrieve_gmm_flex_template_id(gmm_api_key, new_org_id, "807 Remote Access Adv Template") 
+flex_id_1101 := gmmapi.Retrieve_gmm_flex_template_id(gmm_api_key, new_org_id, "1101 Remote Access Adv Template")
 
 //replace flexible template id with actual flexbile template id
 profile_807 := `
@@ -260,8 +260,8 @@ tag_string := `
     "enabled": true,
     "field_type": "Dropdown",
     "allowed_values": [
-      "IR807",
-      "IR1101"
+      "Remote Access with IR807",
+      "Remote Access with IR1101"
     ]
  }`
 
