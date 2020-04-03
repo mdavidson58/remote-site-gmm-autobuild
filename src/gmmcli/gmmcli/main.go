@@ -11,8 +11,8 @@ import (
 
 func main() {
 
-  if len(os.Args) != 4 {
-        fmt.Println("Usage:", os.Args[0], "\"gmmusername\"", "\"gmmpassword\"", "GMMOrgID")
+  if len(os.Args) != 5 {
+        fmt.Println("Usage:", os.Args[0], "\"gmmusername\"", "\"gmmpassword\"", "GMMOrgID", "NumOrgs")
         return
     }
 
@@ -28,6 +28,11 @@ if err != nil {
 os.Exit(1)
 }
 
+number_of_orgs, err := strconv.Atoi(os.Args[4])
+	if err != nil {
+		os.Exit(1)
+	}
+
 // Retrieve GMM API Key
 // substitue  uid@enterprise.com and password with your GMM account and password that has API access
 gmm_api_key := gmmapi.Retrieve_gmm_api_key(user_name, user_pass)
@@ -41,7 +46,6 @@ gmm_api_key := gmmapi.Retrieve_gmm_api_key(user_name, user_pass)
 //fmt.Println("tag 1 = " + strconv.Itoa(gmmapi.Retrieve_gmm_org_tag_id(gmm_api_key, my_org_id, 0)))
 
 // let's build orgs
-number_of_orgs := 2
 for x :=0; x< number_of_orgs; x++ {
 	
 Org_Name :="RemoteSite" + strconv.Itoa(x)
