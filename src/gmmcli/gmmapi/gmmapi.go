@@ -28,6 +28,7 @@ import (
 "os"
 "strconv"
 "time"
+
 )
 
 // Function to retrieve the GMM API Key
@@ -393,7 +394,7 @@ os.Exit(1)
 }
 
 responseData, _ := ioutil.ReadAll(r.Body)
-fmt.Println(string(responseData))
+fmt.Println("Retrieve GWY Profiles = " +string(responseData))
 
 filename := "/tmp/" + profile_name + ".json"
 ioutil.WriteFile(filename, responseData, 0644)
@@ -405,8 +406,6 @@ ioutil.WriteFile(filename, responseData, 0644)
 func Gmm_upload_gwy_profile(gmm_api_key string, org_id int, gw_profile string) {
 
 byteValue := []byte(gw_profile)
-
-fmt.Println("byteValue = " + string(byteValue))
 
 url := "https://us.ciscokinetic.io/api/v2/organizations/" + strconv.Itoa(org_id) + "/gateway_profiles"
 request, _ := http.NewRequest("POST", url, bytes.NewBuffer(byteValue))
@@ -681,8 +680,8 @@ fmt.Println("")
 fmt.Println("Claiming Gateway : " + string(responseData))
 }
 
-// Function to Modify WGB SSID and PSK
-// Need to supply GMM API Key, GMM Org ID, Gateway Profile Name, New WGB SSID and/or New WGB PSK
+// Function to associate flexible template
+
 func Gmm_associate_flex_template(gmm_api_key string, org_id int, profile_name string, flex_template_name string) {
 
 pid := Retrieve_gmm_profile_id(gmm_api_key, org_id, profile_name)
@@ -757,6 +756,7 @@ fmt.Println("Unmarshall Error: ", e)
   os.Exit(1)
 }
 
+fmt.Println("Retrieved Tag ID = " + strconv.Itoa(responseObject[varnum].ID))
 return responseObject[varnum].ID
 
 }
@@ -799,7 +799,6 @@ Token_type string		`json: "token_type"`
 jsonData := `{ "organization": { "name": "` + orgname + `", "parent_id": ` + strconv.Itoa(parentOrg) + `, "user_account": "false" }}`
 jsonValue := []byte(jsonData)
 
-fmt.Println("payload = " + string(jsonValue))
 request, _ := http.NewRequest("POST", "https://us.ciscokinetic.io/api/v2/organizations/", bytes.NewBuffer(jsonValue))
 token := "Token " + gmm_api_key
 request.Header.Set("Authorization", token)
@@ -813,7 +812,6 @@ os.Exit(1)
 }
 
 responseData, _ := ioutil.ReadAll(r.Body)
-fmt.Println("responseData = " + string(responseData))
 var responseObject org_info
 e := json.Unmarshal(responseData, &responseObject)
 if e != nil {
@@ -821,6 +819,7 @@ fmt.Println("Unmarshall Error: ", e)
 os.Exit(1)
 }
 
+fmt.Println("Organization " + orgname + " created with ID = " + strconv.Itoa(responseObject.ID))
 return responseObject.ID
 
 }
@@ -870,7 +869,6 @@ Token_type string		`json: "token_type"`
 
 jsonValue := []byte(claimpolicy)
 uri := "https://us.ciscokinetic.io/api/v2/organizations/"+ strconv.Itoa(org_id) + "/gateway_claim_policies"
-fmt.Println("payload = " + string(jsonValue))
 request, _ := http.NewRequest("POST", uri , bytes.NewBuffer(jsonValue))
 token := "Token " + gmm_api_key
 request.Header.Set("Authorization", token)
@@ -879,12 +877,11 @@ client := &http.Client{}
 r, err := client.Do(request)
 
 if err != nil {
-fmt.Printf("Org creation failed with the error %s\n", err)
+fmt.Printf("claim policy creation failed with the error %s\n", err)
 os.Exit(1)
 }
 
 responseData, _ := ioutil.ReadAll(r.Body)
-fmt.Println("responseData = " + string(responseData))
 var responseObject claim_policy
 e := json.Unmarshal(responseData, &responseObject)
 if e != nil {
@@ -897,3 +894,138 @@ return responseObject.ID
 
 }
 
+
+
+
+// retrieve org ID
+func Retrieve_gmm_org_id(gmm_api_key string, parent_org_id int, org_name string) (id int) {
+
+type Org_profiles struct {
+Organizations []struct {
+Id                      int     `json:"id"`
+Name					string	`json:"name"`
+Owner_id                int     `json:"owner_id"`
+Ancestry				string	`json:"ancestry"`
+Ancestry_depth			int		`json:"acestry_depth"`
+Tag_id					string	`json:"tag_id_for_data_routing"`
+Betas					[]string	`json:"betas"`
+Data_exchange_url		string	`json:"data_exchange_url"`
+Gateway_show_commands	string	`json:"gateway_show_commands"`
+Features				string 	`json:"features"`
+} `json:"organizations"`
+Paging struct {
+Limit  int `json:"limit"`
+Offset int `json:"offset"`
+Pages  int `json:"pages"`
+Count  int `json:"count"`
+Links  struct {
+First string `json:"first"`
+Last  string `json:"last"`
+} `json:"links"`
+} `json:"paging"`
+Child_organization_level	string	`json:"child_organization_level"`
+}
+
+jsonValue, _ := json.Marshal("")
+request, _ := http.NewRequest("GET", "https://us.ciscokinetic.io/api/v2/organizations/" + strconv.Itoa(parent_org_id) + "/child_organizations?limit=200", bytes.NewBuffer(jsonValue))
+token := "Token " + gmm_api_key
+request.Header.Set("Authorization", token)
+client := &http.Client{}
+r, err := client.Do(request)
+
+if err != nil {
+fmt.Printf("Retrieve GMM ORG STATUS error %s\n", err)
+os.Exit(1)
+}
+
+
+responseData, _ := ioutil.ReadAll(r.Body)
+var responseObject Org_profiles
+e := json.Unmarshal(responseData, &responseObject)
+if e != nil {
+fmt.Println("Unmarshall Error: ", e)
+  os.Exit(1)
+}
+
+org_id := 0
+for i:= 0; i < len(responseObject.Organizations); i++ {
+	if responseObject.Organizations[i].Name == org_name {
+
+		org_id = responseObject.Organizations[i].Id
+		fmt.Println("Found Org Name " + org_name + " with org id " + strconv.Itoa(org_id))
+	} 
+}
+
+return org_id
+}
+
+//function to delete org
+func Gmm_delete_org(gmm_api_key string, parent_org_id int, org_name string ) {
+
+type Org_info struct {
+ID          int     	`json:"id"`
+Name		string		`json:"name"`
+Owner_ID 	int			`json:"owner_id"`
+Created_at  string 		`json:"created_at"`
+Updated_at  string 		`json:"updated_at"`
+Field_director_id	int	`json:"field_director_id"`
+Field_director_object_ref struct {} `json:"field_director_object_ref"`
+Fog_director_id	int		`json:"fog_director_id"`
+Ancestry	string		`json:"ancestry"`
+Ancestry_depth 	int		`json:"ancestry_depth"`
+Fnd_template_file	string	`json:"fnd_template_file"`
+Tag_id		int			`json:"tag_id_for_data_routing"`
+Fnd_template_id	int		`json:"fnd_template_id"`
+Subscriber_uid	string	`json:"subscriber_uid"`
+Guid		string		`json:"guid"`
+Betas		[]string	`json:"betas"`
+Dcm			string		`json:"dcm_server"`
+Dxc_url		string		`json:"data_exchange_url"`
+Gw_show		string		`json:"gateway_show_commands"`
+Gw_debug	string		`json:"gateway_debug_commands"`
+Alerts		int			`json:"alert_email_count"`
+Alert_date	string		`json:"alerts_limit_email_sent_on"`
+Features    string		`json:"features"`
+FirstAlert	string		`json:"first_alert_for_day"`
+Ui_Column	string		`json:"ui_column"`
+Cust_Id		string		`json:"customer_identifier"`
+Cust_Type	string		`json:"customer_type"`
+Notes		string		`json:"notes"`
+
+}
+
+// Retrieving corresponding gateway ID
+org_id := Retrieve_gmm_org_id(gmm_api_key, parent_org_id,  org_name )
+
+if org_id == 0 {
+fmt.Println("")
+fmt.Println("Gateway " + org_name + " could not be deleted since doesn't exist")
+return
+}
+
+jsonValue, _ := json.Marshal("")
+url := "https://us.ciscokinetic.io/api/v2/organizations/" + strconv.Itoa(org_id)
+request, _ := http.NewRequest("DELETE", url, bytes.NewBuffer(jsonValue))
+token := "Token " + gmm_api_key
+request.Header.Set("Authorization", token)
+client := &http.Client{}
+r, err := client.Do(request)
+
+if err != nil {
+fmt.Printf("Delete org error %s\n", err)
+os.Exit(1)
+}
+
+responseData, _ := ioutil.ReadAll(r.Body)
+var responseObject Org_info
+e := json.Unmarshal(responseData, &responseObject)
+if e != nil {
+fmt.Println("Unmarshall Error: ", e)
+os.Exit(1)
+}
+
+fmt.Println("")
+fmt.Println("Org " + org_name + " with ID " + strconv.Itoa(org_id) + " deleted")
+
+
+}

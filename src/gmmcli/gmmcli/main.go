@@ -41,13 +41,18 @@ gmm_api_key := gmmapi.Retrieve_gmm_api_key(user_name, user_pass)
 //fmt.Println("tag 1 = " + strconv.Itoa(gmmapi.Retrieve_gmm_org_tag_id(gmm_api_key, my_org_id, 0)))
 
 // let's build orgs
-for x :=0; x< 2; x++ {
+number_of_orgs := 2
+for x :=0; x< number_of_orgs; x++ {
 	
-Org :="RemoteSite" + strconv.Itoa(x)
+Org_Name :="RemoteSite" + strconv.Itoa(x)
+
+// if org already exists...delete it
+gmmapi.Gmm_delete_org(gmm_api_key, my_org_id, Org_Name)
 
 // create the new org 
-  new_org_id := gmmapi.Create_gmm_org(gmm_api_key, Org, my_org_id)
+  new_org_id := gmmapi.Create_gmm_org(gmm_api_key, Org_Name, my_org_id)
   fmt.Println ("org " + strconv.Itoa(new_org_id) + " created")
+	
 
 // Upload a Flexible Template to GMM
 // substitute flex.json with the flexible template
