@@ -756,8 +756,21 @@ fmt.Println("Unmarshall Error: ", e)
   os.Exit(1)
 }
 
-fmt.Println("Retrieved Tag ID = " + strconv.Itoa(responseObject[varnum].ID))
-return responseObject[varnum].ID
+tagid := 0
+counter := 0
+for i:=0; i<varnum; i++ {
+	if responseObject[i].Org_ID ==  org_id  {
+		if counter == 0 {
+			tagid = responseObject[i].ID
+			fmt.Println("Retrieved Tag ID = " + strconv.Itoa(responseObject[i].ID))
+		}
+		counter = counter + 1
+	}
+}
+return tagid
+//fmt.Println("Retrieved Tag ID = " + strconv.Itoa(responseObject[varnum].ID))
+//return responseObject[varnum].ID
+
 
 }
 
@@ -1022,6 +1035,11 @@ e := json.Unmarshal(responseData, &responseObject)
 if e != nil {
 fmt.Println("Unmarshall Error: ", e)
 os.Exit(1)
+}
+
+if r.StatusCode != 200 {
+		fmt.Println("Org " + org_name + " with ID " + strconv.Itoa(org_id) + " could not be deleted.  Status code: " + strconv.Itoa(r.StatusCode))
+		os.Exit(1)
 }
 
 fmt.Println("")

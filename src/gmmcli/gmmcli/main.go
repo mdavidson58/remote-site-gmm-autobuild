@@ -259,7 +259,7 @@ profile_id_807 := gmmapi.Retrieve_gmm_profile_id(gmm_api_key, new_org_id, "807 R
 profile_id_1101 := gmmapi.Retrieve_gmm_profile_id(gmm_api_key, new_org_id, "1101 Remote Access for Manufacturing")
 
 // retrieve the id of the first tag
-new_tag_id := gmmapi.Retrieve_gmm_org_tag_id(gmm_api_key, new_org_id, 0)
+new_tag_id := gmmapi.Retrieve_gmm_org_tag_id(gmm_api_key, new_org_id, 5)
 
 // this is our tag
 tag_string := `  
