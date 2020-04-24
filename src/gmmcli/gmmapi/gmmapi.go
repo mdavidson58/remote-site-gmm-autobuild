@@ -15,6 +15,12 @@ This package provides sample Go functions to achieve the following functionality
 '95	Name/Rename Gateway within GMM
 '95	Modify WiFi SSID and PSK
 '95	Modify WGB SSID and PSK
+'95 Retrieve GMM Org ID
+'95 Retrieve GMM Org Tags
+'95 Delete GMM org
+'95 Create GMM org
+'95 Create GMM Claim Policy
+'95 Add User
 */
 
 package gmmapi
@@ -1046,4 +1052,75 @@ fmt.Println("")
 fmt.Println("Org " + org_name + " with ID " + strconv.Itoa(org_id) + " deleted")
 
 
+}
+
+// Add user to org
+func Gmm_add_user(gmm_api_key string, org_id int,  user_info string ) (user_id int) {
+
+type User_response struct {
+Id          int     	`json:"id"`
+Org_Id		int			`json:"organization_id"`
+Role	 	string		`json:"role"`
+Created_at  string 		`json:"created_at"`
+Updated_at  string 		`json:"updated_at"`
+User struct {
+	Confirmed_at	string	`json:"confirmed_at"`
+	Email			string	`json:"mail"`
+	Id				int		`json:"id"`
+	Name			string	`json:"name"`
+	
+} `json:"user"`
+
+}
+
+/*
+type user_info struct {
+	membership struct {
+Email		string			`json:"email"`
+Name  		string 			`json:"name"`
+Role		string 			`json:"role"`
+	} `json:"membership"`
+
+}
+*/
+
+if org_id == 0 {
+fmt.Println("")
+fmt.Println( strconv.Itoa(org_id) + " doesn't exist")
+return
+}
+
+
+jsonValue := []byte(user_info)
+uri := "https://us.ciscokinetic.io/api/v2/organizations/"+ strconv.Itoa(org_id) + "/memberships"
+request, _ := http.NewRequest("POST", uri , bytes.NewBuffer(jsonValue))
+token := "Token " + gmm_api_key
+request.Header.Set("Authorization", token)
+request.Header.Set("Content-Type", "application/json")
+client := &http.Client{}
+r, err := client.Do(request)
+
+
+if err != nil {
+fmt.Printf("Add user error %s\n", err)
+os.Exit(1)
+}
+
+responseData, _ := ioutil.ReadAll(r.Body)
+var responseObject User_response
+e := json.Unmarshal(responseData, &responseObject)
+if e != nil {
+fmt.Println("Unmarshall Error: ", e)
+os.Exit(1)
+}
+
+if r.StatusCode != 200 {
+		fmt.Println("User could not be added.  Status code: " + strconv.Itoa(r.StatusCode))
+		os.Exit(1)
+}
+
+fmt.Println("")
+fmt.Println("User " + responseObject.User.Email + " added")
+
+return responseObject.Id
 }

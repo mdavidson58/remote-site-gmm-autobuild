@@ -57,7 +57,39 @@ gmmapi.Gmm_delete_org(gmm_api_key, my_org_id, Org_Name)
   new_org_id := gmmapi.Create_gmm_org(gmm_api_key, Org_Name, my_org_id)
   fmt.Println ("org " + strconv.Itoa(new_org_id) + " created")
 	
+// Add admins to new orgs
 
+User1 := `
+{
+	"membership": {
+		"email": "bsizemor@cisco.com",
+		"name": "Brian Sizemore",
+		"role": "Admin"
+	}
+}`
+
+User2 := `
+{
+	"membership": {
+		"email": "mchen@cisco.com",
+		"name": "Ming Chen",
+		"role": "Admin"
+	}
+}`
+
+User3 := `
+{
+	"membership": {
+		"email": "misolomo@cisco.com",
+		"name": "Mike Solomonides",
+		"role": "Admin"
+	}
+}`
+
+ gmmapi.Gmm_add_user(gmm_api_key, new_org_id, User1) 
+ gmmapi.Gmm_add_user(gmm_api_key, new_org_id, User2) 
+ gmmapi.Gmm_add_user(gmm_api_key, new_org_id, User3) 
+ 
 // Upload a Flexible Template to GMM
 // substitute flex.json with the flexible template
 flex_template_807 := `
