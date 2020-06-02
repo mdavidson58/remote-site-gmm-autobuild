@@ -94,32 +94,120 @@ User3 := `
 // substitute flex.json with the flexible template
 flex_template_807 := `
 {
+    
       "name": "807 Remote Access Adv Template",
       "description": "",
-      "template": "!\n/* Customer must configure custom subnet. Example: Set Custom subnet to 192.168.3.0/24\n/* Note do not use gmm_ip_01, it is the IP address of the router\n\n<#assign gmm_subnet = gw.ip_prefix + \".\" + gw.ip_suffix>\n<#assign gmm_ip_01 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 16)>\n<#assign gmm_ip_02 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 17)>\n<#assign gmm_ip_03 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 18)>\n<#assign gmm_ip_04 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 19)>\n<#assign gmm_ip_05 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 20)>\n<#assign gmm_ip_06 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 21)>\n<#assign gmm_ip_07 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 22)>\n<#assign gmm_ip_08 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 23)>\n<#assign gmm_ip_09 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 24)>\n<#assign gmm_ip_10 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 25)>\n<#assign gmm_ip_11 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 26)>\n<#assign gmm_ip_12 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 27)>\n<#assign gmm_ip_13 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 28)>\n<#assign gmm_ip_14 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 29)>\n\ninterface FastEthernet1\nip address ${ custom.LAN_interface_address } ${gw.lan_netmask}\n\n/* Define IP addresse in custom subnet\n/*\n\n/* 32 ip total\n/* 1st 8 ip reserved for IOX network\n/* 2nd 8 ip reserved for AP network\n/* 2nd half of 32 ip(16 ip) reserved for device subnet\n\n/* assign Loopback0 to device subnet block (since not used because custom subnet is configured)\ninterface Loopback0\nip address ${ gmm_ip_01 } 255.255.255.240\nip nat outside\n\n/* any local IP from device subnet block going to ASA\nip access-list extended nat-on-a-stick\npermit ip ${ gmm_subnet } 0.0.0.15 10.7.0.0 0.0.255.255\nip access-list extended remote-access\npermit ip ${ gmm_subnet } 0.0.0.15 any\nip access-list extended remote-asa\npermit ip 10.7.0.0 0.0.255.255 any\nroute-map nat-on-a-stick permit 10\nmatch ip address nat-on-a-stick\nset interface Loopback0\n\n/* configure block for number of simultaneous connections down to the device subnet from ASA\nip nat pool remote-access ${ custom.nat_inside_address } ${ custom.nat_inside_address} netmask ${ gw.lan_netmask }\n\n/* add additional NAT statement as needed based on number of devices (up to 13 devices)\nip nat inside source static ${ custom.device_ip_1 } ${ gmm_ip_02 } route-map remote-asa\n\nip nat outside source list remote-asa pool remote-access add-route\n\nint FastEthernet1\nip policy route-map nat-on-a-stick\n\nint Tunnel1\nip nat outside",
+      "template": "!\n/* Customer must configure custom subnet. Example: Set Custom subnet to 192.168.3.0/24\n/* Note do not use gmm_ip_01, it is the IP address of the router\n\n<#assign gmm_subnet = gw.ip_prefix + \".\" + gw.ip_suffix>\n<#assign gmm_ip_01 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 16)>\n<#assign gmm_ip_02 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 17)>\n<#assign gmm_ip_03 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 18)>\n<#assign gmm_ip_04 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 19)>\n<#assign gmm_ip_05 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 20)>\n<#assign gmm_ip_06 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 21)>\n<#assign gmm_ip_07 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 22)>\n<#assign gmm_ip_08 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 23)>\n<#assign gmm_ip_09 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 24)>\n<#assign gmm_ip_10 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 25)>\n<#assign gmm_ip_11 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 26)>\n<#assign gmm_ip_12 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 27)>\n<#assign gmm_ip_13 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 28)>\n<#assign gmm_ip_14 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 29)>\n\ninterface FastEthernet1\n  ip address ${ custom.LAN_interface_address } ${gw.lan_netmask}\n\n/* Define IP addresse in custom subnet\n/*\n\n/* 32 ip total\n/* 1st 8 ip reserved for IOX network\n/* 2nd 8 ip reserved for AP network\n/* 2nd half of 32 ip(16 ip) reserved for device subnet\n\n/* assign Loopback0 to device subnet block (since not used because custom subnet is configured)\ninterface Loopback0\n  ip address ${ gmm_ip_01 } 255.255.255.240\n  ip nat inside\n\n/* any local IP from device subnet block going to ASA\nip access-list extended nat-on-a-stick\n  permit ip ${ gmm_subnet } 0.0.0.15 10.7.0.0 0.0.255.255\nip access-list extended remote-access\n  permit ip ${ gmm_subnet } 0.0.0.15 any\nip access-list extended remote-asa\n  permit ip 10.7.0.0 0.0.255.255 any\nroute-map nat-on-a-stick permit 10\n  match ip address nat-on-a-stick\n  set interface Loopback0\n\n/* configure block for number of simultaneous connections down to the device subnet from ASA\nip nat pool remote-access ${ custom.nat_inside_address } ${ custom.nat_inside_address} netmask ${ gw.lan_netmask }\n\n/* add additional NAT statement as needed based on number of devices (up to 13 devices)\nip nat inside source static ${ custom.device_ip_1 } ${ gmm_ip_02 } route-map remote-asa\n\nip nat outside source list remote-asa pool remote-access add-route\n!\nint Tunnel1\n  ip nat outside\n\nip accounting-list ${ custom.nat_inside_address } 0.0.0.0\nint FastEthernet1\n  ip policy route-map nat-on-a-stick\n  ip accounting output-packets\n!\nevent manager applet RemoteAccessTrigger\n event snmp oid lipAccountEntry.3 get-type next entry-op ge entry-val \"500\" poll-interval 600\n action 1.0 syslog priority informational msg \"Machine access detected by remote technician in last 10 min\"\n action 2.0 cli command \"enable\"\n action 3.0 cli command \"clear ip accounting\"\n!",
       "variables": [
         "LAN_interface_address",
         "nat_inside_address",
         "device_ip_1"
       ],
-      "flexible_template_type": "router"
-
+      "flexible_template_type": "router",
+      "variables_with_type": [
+        {
+          "name": "LAN_interface_address",
+          "type": "text"
+        },
+        {
+          "name": "nat_inside_address",
+          "type": "text"
+        },
+        {
+          "name": "device_ip_1",
+          "type": "text"
+        }
+      ]
 }
 `
 
 
 flex_template_1101 := `
 {
-      "name": "1101 Remote Access Adv Template",
-      "description": "",
-      "template": "/* Customer must configure custom subnet. Example: Set Custom subnet to 192.168.3.0/24\n/* Note do not use gmm_ip_01, it is the IP address of the router\n\n<#assign gmm_subnet = gw.ip_prefix + \".\" + gw.ip_suffix>\n<#assign gmm_ip_01 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 16)>\n<#assign gmm_ip_02 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 17)>\n<#assign gmm_ip_03 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 18)>\n<#assign gmm_ip_04 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 19)>\n<#assign gmm_ip_05 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 20)>\n<#assign gmm_ip_06 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 21)>\n<#assign gmm_ip_07 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 22)>\n<#assign gmm_ip_08 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 23)>\n<#assign gmm_ip_09 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 24)>\n<#assign gmm_ip_10 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 25)>\n<#assign gmm_ip_11 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 26)>\n<#assign gmm_ip_12 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 27)>\n<#assign gmm_ip_13 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 28)>\n<#assign gmm_ip_14 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 29)>\n\ninterface Vlan1\nip address ${ custom.LAN_interface_address } ${gw.lan_netmask}\n\n/* Define IP addresse in custom subnet\n/*\n\n/* 32 ip total\n/* 1st 8 ip reserved for IOX network\n/* 2nd 8 ip reserved for AP network\n/* 2nd half of 32 ip(16 ip) reserved for device subnet\n\n/* assign Loopback0 to device subnet block (since not used because custom subnet is configured)\ninterface Loopback0\nip address ${ gmm_ip_01 } 255.255.255.240\nip nat outside\n\n/* any local IP from device subnet block going to ASA\nip access-list extended nat-on-a-stick\npermit ip ${ gmm_subnet } 0.0.0.15 10.7.0.0 0.0.255.255\nip access-list extended remote-access\npermit ip ${ gmm_subnet } 0.0.0.15 any\nip access-list extended remote-asa\npermit ip 10.7.0.0 0.0.255.255 any\nroute-map nat-on-a-stick permit 10\nmatch ip address nat-on-a-stick\nset interface Loopback0\n\n/* configure block for number of simultaneous connections down to the device subnet from ASA\nip nat pool remote-access ${ custom.nat_inside_address } ${ custom.nat_inside_address} netmask ${ gw.lan_netmask }\n\n/* add additional NAT statement as needed based on number of devices (up to 13 devices)\nip nat inside source static ${ custom.device_ip_1 } ${ gmm_ip_02 } route-map remote-asa\n\nip nat outside source list remote-asa pool remote-access add-route\n\nint Vlan1\nip policy route-map nat-on-a-stick\n\nint Tunnel1\nip nat outside\n\n!\ninterface Async0/2/0\nno ip address\nencapsulation relay-line\n!\nline 0/2/0\ntransport input telnet\ntransport output none\nstopbits 1\n!",
-      "variables": [
-        "LAN_interface_address",
-        "nat_inside_address",
-        "device_ip_1"
-      ],
-      "flexible_template_type": "router"
-
+ 
+  "name": "1101 Remote Access Adv Template",
+  "description": "",
+  "template": "!\n/* Customer must configure custom subnet. Example: Set Custom subnet to 192.168.3.0/24\n/* Note do not use gmm_ip_01, it is the IP address of the router\n\n<#assign gmm_subnet = gw.ip_prefix + \".\" + gw.ip_suffix>\n<#assign gmm_ip_01 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 16)>\n<#assign gmm_ip_02 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 17)>\n<#assign gmm_ip_03 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 18)>\n<#assign gmm_ip_04 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 19)>\n<#assign gmm_ip_05 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 20)>\n<#assign gmm_ip_06 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 21)>\n<#assign gmm_ip_07 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 22)>\n<#assign gmm_ip_08 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 23)>\n<#assign gmm_ip_09 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 24)>\n<#assign gmm_ip_10 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 25)>\n<#assign gmm_ip_11 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 26)>\n<#assign gmm_ip_12 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 27)>\n<#assign gmm_ip_13 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 28)>\n<#assign gmm_ip_14 = gw.ip_prefix + \".\" + (gw.ip_suffix?number + 29)>\n\ninterface Vlan1\nip address ${ custom.LAN_interface_address } ${gw.lan_netmask}\n\n/* Define IP addresse in custom subnet\n/*\n\n/* 32 ip total\n/* 1st 8 ip reserved for IOX network\n/* 2nd 8 ip reserved for AP network\n/* 2nd half of 32 ip(16 ip) reserved for device subnet\n\n/* assign Loopback0 to device subnet block (since not used because custom subnet is configured)\ninterface Loopback0\nip address ${ gmm_ip_01 } 255.255.255.240\nip nat outside\n\n/* any local IP from device subnet block going to ASA\nip access-list extended nat-on-a-stick\npermit ip ${ gmm_subnet } 0.0.0.15 10.7.0.0 0.0.255.255\nip access-list extended remote-access\npermit ip ${ gmm_subnet } 0.0.0.15 any\nip access-list extended remote-asa\npermit ip 10.7.0.0 0.0.255.255 any\nroute-map nat-on-a-stick permit 10\nmatch ip address nat-on-a-stick\nset interface Loopback0\n\n/* configure block for number of simultaneous connections down to the device subnet from ASA\nip nat pool remote-access ${ custom.nat_inside_address } ${ custom.nat_inside_address} netmask ${ gw.lan_netmask }\n\n/* add additional NAT statement as needed based on number of devices (up to 13 devices)\n<#assign x = 0>\n<#assign NATLIST = [ custom.device_ip_1, custom.device_ip_2, custom.device_ip_3, custom.device_ip_4, custom.device_ip_5, custom.device_ip_6, custom.device_ip_7, custom.device_ip_8, custom.device_ip_9, custom.device_ip_10, custom.device_ip_11, custom.device_ip_12, custom.device_ip_13 ]>\n<#assign IP = [ gmm_ip_01, gmm_ip_02, gmm_ip_03, gmm_ip_04, gmm_ip_05, gmm_ip_06, gmm_ip_07, gmm_ip_08, gmm_ip_09, gmm_ip_10, gmm_ip_11, gmm_ip_12, gmm_ip_13, gmm_ip_14 ]>\n\n\n<#list NATLIST as NAT>\n<#assign y = x + 1>\n<#if NAT == \"0\">\n    <#continue>\n</#if>\nip nat inside source static ${ NAT } ${IP[y]} route-map remote-asa\n<#assign x++>\n</#list>\n\nip nat outside source list remote-asa pool remote-access add-route\n\nint Vlan1\nip policy route-map nat-on-a-stick\n\nint Tunnel1\nip nat outside\n\n!\ninterface Async0/2/0\nno ip address\nencapsulation relay-line\n!\nline 0/2/0\ntransport input telnet\ntransport output none\nstopbits 1",
+  "variables": [
+    "LAN_interface_address",
+    "nat_inside_address",
+    "device_ip_1",
+    "device_ip_2",
+    "device_ip_3",
+    "device_ip_4",
+    "device_ip_5",
+    "device_ip_6",
+    "device_ip_7",
+    "device_ip_8",
+    "device_ip_9",
+    "device_ip_10",
+    "device_ip_11",
+    "device_ip_12",
+    "device_ip_13"
+  ],
+  "flexible_template_type": "router",
+  "variables_with_type": [
+    {
+      "name": "LAN_interface_address",
+      "type": "text"
+    },
+    {
+      "name": "nat_inside_address",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_1",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_2",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_3",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_4",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_5",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_6",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_7",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_8",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_9",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_10",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_11",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_12",
+      "type": "text"
+    },
+    {
+      "name": "device_ip_13",
+      "type": "text"
+    }
+  ]
 }
 `
 
